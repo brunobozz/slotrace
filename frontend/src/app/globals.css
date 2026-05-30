@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+:root {
+  --background: #090b11;
+  --foreground: #f8fafc;
+  --card-bg: rgba(15, 23, 42, 0.45);
+  --card-border: rgba(255, 255, 255, 0.06);
+  
+  /* Cores das Fendas */
+  --lane-1: #00f0ff;
+  --lane-2: #ff3366;
+  --lane-3: #33ff66;
+  --lane-4: #ffff33;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  
+  --color-lane-1: var(--lane-1);
+  --color-lane-2: var(--lane-2);
+  --color-lane-3: var(--lane-3);
+  --color-lane-4: var(--lane-4);
+  
+  --color-racing-red: #ff3838;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 240, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(255, 51, 102, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(51, 255, 102, 0.04) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(30, 41, 59, 0.25);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Digital telemetric numbers */
+.font-mono-telemetry {
+  font-family: var(--font-mono-telemetry), monospace;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(var(--glow-color), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(var(--glow-color), 0.6);
+  }
+}
+
+.animate-glow-1 {
+  --glow-color: 0, 240, 255;
+  animation: pulse-glow 2s infinite;
+}
+.animate-glow-2 {
+  --glow-color: 255, 51, 102;
+  animation: pulse-glow 2s infinite;
+}
+.animate-glow-3 {
+  --glow-color: 51, 255, 102;
+  animation: pulse-glow 2s infinite;
+}
+.animate-glow-4 {
+  --glow-color: 255, 255, 51;
+  animation: pulse-glow 2s infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090b11;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
