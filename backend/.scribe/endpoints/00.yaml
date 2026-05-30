@@ -1,0 +1,285 @@
+name: 'Drivers - Endpoints for managing drivers.'
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/drivers
+    metadata:
+      custom: []
+      groupName: 'Drivers - Endpoints for managing drivers.'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'GET /api/drivers - List all registered drivers with aggregated statistics.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '[{"id":2,"name":"Alain Prost","nickname":"Prost","avatar":null,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z","races_count":2,"total_laps":15},{"id":3,"name":"Michael Schumacher","nickname":"Schumi","avatar":null,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z","races_count":2,"total_laps":27},{"id":4,"name":"Lewis Hamilton","nickname":"Hamilton","avatar":null,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z","races_count":2,"total_laps":15},{"id":5,"name":"Joanna","nickname":"Banana","avatar":null,"created_at":"2026-05-27T23:05:51.000000Z","updated_at":"2026-05-27T23:05:51.000000Z","races_count":1,"total_laps":26}]'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/drivers
+    metadata:
+      custom: []
+      groupName: 'Drivers - Endpoints for managing drivers.'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'POST /api/drivers - Register a new driver on the platform.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      nickname:
+        custom: []
+        name: nickname
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      avatar:
+        custom: []
+        name: avatar
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      nickname: 'n'
+      avatar: g
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/drivers/{id}'
+    metadata:
+      custom: []
+      groupName: 'Drivers - Endpoints for managing drivers.'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'GET /api/drivers/{id} - Retrieve details of a specific driver including their cars and best lap times.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the driver.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 2
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"id":2,"name":"Alain Prost","nickname":"Prost","avatar":null,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z","races_count":2,"cars":[{"id":3,"name":"Williams FW14B","brand":"NSR","model":"FW14B","scale":"1:32","driver_id":2,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z"}],"lap_times":[{"id":78,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":5,"lap_time_seconds":4.882,"created_at":"2026-05-28T03:00:39.000000Z","updated_at":"2026-05-28T03:00:39.000000Z"},{"id":84,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":8,"lap_time_seconds":4.945,"created_at":"2026-05-28T03:00:52.000000Z","updated_at":"2026-05-28T03:00:52.000000Z"},{"id":8,"race_id":1,"driver_id":2,"lane_number":2,"lap_number":4,"lap_time_seconds":5.211,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z"},{"id":87,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":10,"lap_time_seconds":5.232,"created_at":"2026-05-28T03:01:04.000000Z","updated_at":"2026-05-28T03:01:04.000000Z"},{"id":86,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":9,"lap_time_seconds":5.234,"created_at":"2026-05-28T03:01:03.000000Z","updated_at":"2026-05-28T03:01:03.000000Z"},{"id":10,"race_id":1,"driver_id":2,"lane_number":2,"lap_number":5,"lap_time_seconds":5.245,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z"},{"id":6,"race_id":1,"driver_id":2,"lane_number":2,"lap_number":3,"lap_time_seconds":5.29,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z"},{"id":4,"race_id":1,"driver_id":2,"lane_number":2,"lap_number":2,"lap_time_seconds":5.34,"created_at":"2026-05-27T22:07:49.000000Z","updated_at":"2026-05-27T22:07:49.000000Z"},{"id":73,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":3,"lap_time_seconds":5.345,"created_at":"2026-05-28T02:59:47.000000Z","updated_at":"2026-05-28T02:59:47.000000Z"},{"id":76,"race_id":5,"driver_id":2,"lane_number":2,"lap_number":4,"lap_time_seconds":5.409,"created_at":"2026-05-28T03:00:03.000000Z","updated_at":"2026-05-28T03:00:03.000000Z"}]}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/drivers/{id}'
+    metadata:
+      custom: []
+      groupName: 'Drivers - Endpoints for managing drivers.'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: "PUT /api/drivers/{id} - Update an existing driver's registration details."
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the driver.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 2
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      nickname:
+        custom: []
+        name: nickname
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: 'n'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      avatar:
+        custom: []
+        name: avatar
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: g
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      name: b
+      nickname: 'n'
+      avatar: g
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/drivers/{id}'
+    metadata:
+      custom: []
+      groupName: 'Drivers - Endpoints for managing drivers.'
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'DELETE /api/drivers/{id} - Delete a driver and all their associated records from the database.'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the driver.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 2
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
