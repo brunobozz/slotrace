@@ -29,6 +29,14 @@ export default function GoogleDriveSync() {
   // Load sync metadata from localStorage on mount
   useEffect(() => {
     setMounted(true);
+    if (!user?.email) {
+      setAccessToken(null);
+      setSyncStatus("not_authorized");
+      setLastSyncDate(null);
+      setSyncLogs([]);
+      return;
+    }
+
     const savedMeta = localStorage.getItem(`slotrace_sync_meta_${user?.email}`);
     if (savedMeta) {
       const meta = JSON.parse(savedMeta);
@@ -42,8 +50,17 @@ export default function GoogleDriveSync() {
     const savedToken = sessionStorage.getItem("slotrace_drive_token");
     if (savedToken) {
       setAccessToken(savedToken);
+    } else {
+      setAccessToken(null);
     }
   }, [user?.email]);
+
+  // Automatically authorize simulated/mock accounts in the background without popups
+  useEffect(() => {
+    if (user?.email && isSimulated) {
+      authorizeDrive();
+    }
+  }, [user?.email, isSimulated]);
 
   // Save metadata changes
   const saveMeta = (status, date) => {

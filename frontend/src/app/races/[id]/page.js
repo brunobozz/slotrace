@@ -21,12 +21,16 @@ export default function RacePanel() {
   const [saving, setSaving] = useState(false);
   
   // Simulation config
+  const [useMinTime, setUseMinTime] = useState(false);
+  const [useMaxTime, setUseMaxTime] = useState(false);
   const [simMinTime, setSimMinTime] = useState(4.8);
   const [simMaxTime, setSimMaxTime] = useState(5.8);
   const [newRecordAlert, setNewRecordAlert] = useState(false);
   const [recordDriver, setRecordDriver] = useState("");
 
   const pollingInterval = useRef(null);
+  const lastTriggerTimes = useRef({});
+  const pauseTime = useRef(null);
 
   // Helper: Calculate leaderboard standings locally
   const calculateLocalLeaderboard = (participants, recordedLaps) => {
@@ -145,6 +149,12 @@ export default function RacePanel() {
   // Handler: Start local active race
   const handleStartRace = () => {
     if (!isLocalActive) return;
+    const now = Date.now();
+    if (raceData && raceData.participants) {
+      raceData.participants.forEach(p => {
+        lastTriggerTimes.current[p.lane_number] = now;
+      });
+    }
     setRaceData(prev => {
       const updatedParts = prev.participants.map(p => ({ ...p, status: "racing" }));
       return { ...prev, status: "in_progress", participants: updatedParts };
@@ -154,6 +164,7 @@ export default function RacePanel() {
   // Handler: Pause local active race
   const handlePauseRace = () => {
     if (!isLocalActive) return;
+    pauseTime.current = Date.now();
     setRaceData(prev => {
       const updatedParts = prev.participants.map(p => (p.status === "racing" ? { ...p, status: "paused" } : p));
       return { ...prev, status: "paused", participants: updatedParts };
@@ -163,6 +174,12 @@ export default function RacePanel() {
   // Handler: Resume local active race
   const handleResumeRace = () => {
     if (!isLocalActive) return;
+    if (pauseTime.current) {
+      const pausedDuration = Date.now() - pauseTime.current;
+      Object.keys(lastTriggerTimes.current).forEach(lane => {
+        lastTriggerTimes.current[lane] += pausedDuration;
+      });
+    }
     setRaceData(prev => {
       const updatedParts = prev.participants.map(p => (p.status === "paused" ? { ...p, status: "racing" } : p));
       return { ...prev, status: "in_progress", participants: updatedParts };
@@ -193,9 +210,24 @@ export default function RacePanel() {
       return;
     }
 
-    // Generate random lap time between bounds
-    const randomTime = parseFloat((Math.random() * (parseFloat(simMaxTime) - parseFloat(simMinTime)) + parseFloat(simMinTime)).toFixed(3));
-    
+    const now = Date.now();
+    const prevTime = lastTriggerTimes.current[laneNumber] || now;
+    const elapsedSeconds = parseFloat(((now - prevTime) / 1000).toFixed(3));
+
+    // Threshold performance cut-off filter checks
+    if (useMinTime && elapsedSeconds < parseFloat(simMinTime)) {
+      console.warn(`Lap trigger ignored: below minimum cut-off time (${elapsedSeconds}s < ${simMinTime}s)`);
+      return;
+    }
+
+    if (useMaxTime && elapsedSeconds > parseFloat(simMaxTime)) {
+      console.warn(`Lap trigger ignored: above maximum cut-off time (${elapsedSeconds}s > ${simMaxTime}s)`);
+      return;
+    }
+
+    // Save the new trigger timestamp for the next lap calculation
+    lastTriggerTimes.current[laneNumber] = now;
+
     // Count current laps of the driver to get new lap number
     const driverLapsCount = laps.filter(l => l.driver_id === participant.driver_id).length;
     const newLapNumber = driverLapsCount + 1;
@@ -204,7 +236,7 @@ export default function RacePanel() {
       driver_id: participant.driver_id,
       lane_number: participant.lane_number,
       lap_number: newLapNumber,
-      lap_time_seconds: randomTime
+      lap_time_seconds: elapsedSeconds
     };
 
     const updatedLaps = [...laps, newLap];
@@ -212,7 +244,7 @@ export default function RacePanel() {
 
     // Check track record locally
     const currentRecord = raceData.track?.best_lap_time;
-    if (empty(currentRecord) || randomTime < currentRecord) {
+    if (empty(currentRecord) || elapsedSeconds < currentRecord) {
       setRecordDriver(driverName);
       setNewRecordAlert(true);
       setTimeout(() => setNewRecordAlert(false), 4000);
@@ -222,7 +254,7 @@ export default function RacePanel() {
         ...prev,
         track: {
           ...prev.track,
-          best_lap_time: randomTime,
+          best_lap_time: elapsedSeconds,
           best_lap_driver_id: participant.driver_id
         }
       }));
@@ -492,24 +524,58 @@ export default function RacePanel() {
             <div className="glass-panel p-5 rounded-2xl space-y-4">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.telemetry.simPerfTitle}</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">{t.telemetry.simMin}</label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="useMinTime"
+                      checked={useMinTime}
+                      onChange={(e) => setUseMinTime(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded border-white/10 bg-slate-950 text-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    />
+                    <label htmlFor="useMinTime" className="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer select-none">
+                      {t.telemetry.simMin}
+                    </label>
+                  </div>
                   <input
                     type="number"
                     step="0.1"
+                    disabled={!useMinTime}
                     value={simMinTime}
                     onChange={(e) => setSimMinTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/5 text-slate-200 text-xs font-mono-telemetry font-bold focus:outline-none"
+                    placeholder="Inativo"
+                    className={`w-full px-3 py-2 rounded-xl bg-slate-900 border text-xs font-mono-telemetry font-bold focus:outline-none transition-all ${
+                      useMinTime 
+                        ? "border-cyan-500/30 text-slate-200 focus:border-cyan-500" 
+                        : "border-white/5 text-slate-600 opacity-40 cursor-not-allowed"
+                    }`}
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">{t.telemetry.simMax}</label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="useMaxTime"
+                      checked={useMaxTime}
+                      onChange={(e) => setUseMaxTime(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded border-white/10 bg-slate-950 text-cyan-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    />
+                    <label htmlFor="useMaxTime" className="text-[10px] text-slate-400 font-bold uppercase tracking-wider cursor-pointer select-none">
+                      {t.telemetry.simMax}
+                    </label>
+                  </div>
                   <input
                     type="number"
                     step="0.1"
+                    disabled={!useMaxTime}
                     value={simMaxTime}
                     onChange={(e) => setSimMaxTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-white/5 text-slate-200 text-xs font-mono-telemetry font-bold focus:outline-none"
+                    placeholder="Inativo"
+                    className={`w-full px-3 py-2 rounded-xl bg-slate-900 border text-xs font-mono-telemetry font-bold focus:outline-none transition-all ${
+                      useMaxTime 
+                        ? "border-cyan-500/30 text-slate-200 focus:border-cyan-500" 
+                        : "border-white/5 text-slate-600 opacity-40 cursor-not-allowed"
+                    }`}
                   />
                 </div>
               </div>

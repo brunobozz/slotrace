@@ -25,7 +25,10 @@ const getUserEmail = () => {
 
 const loadCache = () => {
   const email = getUserEmail();
-  if (!email) return;
+  if (!email) {
+    dbCache = { drivers: [], cars: [], tracks: [], races: [], settings: { lang: "en" } };
+    return;
+  }
   try {
     const local = localStorage.getItem(`slotrace_cloud_cache_${email}`);
     if (local) {
@@ -610,6 +613,24 @@ export const virtualDb = {
     };
     saveCache();
     // Dispatch rehydration success to reload dashboard and listing components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event("slotrace_data_restored"));
+    }
+  },
+  initSession: () => {
+    loadCache();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event("slotrace_data_restored"));
+    }
+  },
+  clearSession: () => {
+    dbCache = {
+      drivers: [],
+      cars: [],
+      tracks: [],
+      races: [],
+      settings: { lang: "en" }
+    };
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new Event("slotrace_data_restored"));
     }

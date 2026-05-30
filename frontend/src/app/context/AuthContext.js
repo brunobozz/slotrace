@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { virtualDb } from "@/services/api";
 
 const AuthContext = createContext({
   user: null,
@@ -29,8 +30,22 @@ export function AuthProvider({ children }) {
 
   const login = (profileData) => {
     try {
+      // Clear token leftovers in sessionStorage before logging in new user
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("slotrace_drive_token");
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+          const key = sessionStorage.key(i);
+          if (key && key.startsWith("slotrace_")) {
+            sessionStorage.removeItem(key);
+          }
+        }
+      }
+      
       localStorage.setItem("slotrace_user", JSON.stringify(profileData));
       setUser(profileData);
+      
+      // Initialize database cache immediately for the new user session
+      virtualDb.initSession();
     } catch (err) {
       console.error("Erro ao salvar sessão de usuário:", err);
     }
@@ -38,6 +53,20 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     try {
+      // Clean memory database cache immediately
+      virtualDb.clearSession();
+      
+      // Remove session storage keys
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("slotrace_drive_token");
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+          const key = sessionStorage.key(i);
+          if (key && key.startsWith("slotrace_")) {
+            sessionStorage.removeItem(key);
+          }
+        }
+      }
+      
       localStorage.removeItem("slotrace_user");
       setUser(null);
     } catch (err) {
