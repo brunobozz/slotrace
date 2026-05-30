@@ -204,9 +204,23 @@ export const api = {
       return Promise.resolve(
         dbCache.tracks.map(t => {
           const bestDriver = dbCache.drivers.find(d => d.id === t.best_lap_driver_id);
+          
+          let bestRaceId = t.best_lap_race_id || null;
+          if (t.best_lap_time && !bestRaceId) {
+            // Find completed race where this driver got this exact best lap time
+            const matchingRace = dbCache.races.find(r => 
+              r.track_id === t.id && 
+              (r.lap_times || []).some(l => l.driver_id === t.best_lap_driver_id && Math.abs(l.lap_time_seconds - t.best_lap_time) < 0.001)
+            );
+            if (matchingRace) {
+              bestRaceId = matchingRace.id;
+            }
+          }
+
           return {
             ...t,
-            best_lap_driver: bestDriver || null
+            best_lap_driver: bestDriver || null,
+            best_lap_race_id: bestRaceId
           };
         }).sort((a,b) => a.name.localeCompare(b.name))
       );
@@ -442,7 +456,8 @@ export const api = {
             dbCache.tracks[trackIndex] = {
               ...track,
               best_lap_time: bestLapTime,
-              best_lap_driver_id: bestLapDriverId
+              best_lap_driver_id: bestLapDriverId,
+              best_lap_race_id: raceId
             };
           }
         }

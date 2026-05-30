@@ -17,6 +17,7 @@ export const pt = {
     statsDrivers: "Pilotos Cadastrados",
     statsTracks: "Pistas Disponíveis",
     statsRaces: "Corridas Realizadas",
+    statsCars: "Carros Cadastrados",
     recordsTitle: "🏆 Recordes de Pistas",
     noTracks: "Nenhuma pista cadastrada",
     trackLanes: "fendas",

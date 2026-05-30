@@ -17,6 +17,7 @@ export const en = {
     statsDrivers: "Registered Drivers",
     statsTracks: "Available Tracks",
     statsRaces: "Races Completed",
+    statsCars: "Registered Cars",
     recordsTitle: "🏆 Track Records",
     noTracks: "No tracks registered",
     trackLanes: "lanes",

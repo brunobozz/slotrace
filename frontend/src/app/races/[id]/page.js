@@ -679,7 +679,7 @@ export default function RacePanel() {
                         item.best_lap === Math.min(...leaderboard.filter(l => l.best_lap !== null).map(l => l.best_lap));
 
                       return (
-                        <tr key={item.driver_id} className="hover:bg-white/1 transition-all">
+                        <tr key={item.driver_id} className="hover:bg-white/[0.03] transition-all">
                           {/* Position */}
                           <td className="p-4 sm:p-5 text-center">
                             <span className={`w-8 h-8 rounded-full flex items-center justify-center font-black font-mono-telemetry text-sm ${

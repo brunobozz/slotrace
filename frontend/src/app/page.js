@@ -7,7 +7,7 @@ import { useTranslation } from "@/context/LanguageContext";
 
 export default function Dashboard() {
   const { t, lang } = useTranslation();
-  const [stats, setStats] = useState({ drivers: 0, tracks: 0, races: 0 });
+  const [stats, setStats] = useState({ drivers: 0, tracks: 0, races: 0, cars: 0 });
   const [tracks, setTracks] = useState([]);
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,16 +16,18 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [driversData, tracksData, racesData] = await Promise.all([
+      const [driversData, tracksData, racesData, carsData] = await Promise.all([
         api.drivers.list().catch(() => []),
         api.tracks.list().catch(() => []),
         api.races.list().catch(() => []),
+        api.cars.list().catch(() => []),
       ]);
 
       setStats({
         drivers: driversData.length,
         tracks: tracksData.length,
         races: racesData.length,
+        cars: carsData.length,
       });
       setTracks(tracksData);
       setRaces(racesData);
@@ -131,13 +133,18 @@ export default function Dashboard() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: t.dashboard.statsDrivers, count: stats.drivers, color: "from-cyan-500 to-blue-500" },
-          { label: t.dashboard.statsTracks, count: stats.tracks, color: "from-rose-500 to-orange-500" },
-          { label: t.dashboard.statsRaces, count: stats.races, color: "from-emerald-500 to-teal-500" },
+          { label: t.dashboard.statsDrivers, count: stats.drivers, color: "from-cyan-500 to-blue-500", href: "/manage?tab=drivers" },
+          { label: t.dashboard.statsCars, count: stats.cars, color: "from-yellow-400 to-amber-500", href: "/manage?tab=cars" },
+          { label: t.dashboard.statsTracks, count: stats.tracks, color: "from-rose-500 to-orange-500", href: "/manage?tab=tracks" },
+          { label: t.dashboard.statsRaces, count: stats.races, color: "from-emerald-500 to-teal-500", href: "/manage?tab=races" },
         ].map((item, idx) => (
-          <div key={idx} className="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+          <Link 
+            href={item.href} 
+            key={idx} 
+            className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:bg-white/1 hover:border-white/10 transition-all duration-150 cursor-pointer block"
+          >
             <div className={`absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b ${item.color}`}></div>
             <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider block">
               {item.label}
@@ -145,7 +152,7 @@ export default function Dashboard() {
             <span className="text-4xl font-extrabold tracking-tight block mt-2 text-white font-mono-telemetry">
               {String(item.count).padStart(2, "0")}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -161,54 +168,72 @@ export default function Dashboard() {
           </div>
 
           <div className="space-y-4">
-            {tracks.length === 0 ? (
+            {tracks.filter(trackItem => trackItem.best_lap_time).length === 0 ? (
               <div className="glass-panel p-6 rounded-2xl text-center text-slate-500 text-sm">
-                {t.dashboard.noTracks}
+                {t.dashboard.noRecords}
               </div>
             ) : (
-              tracks.map((track) => (
-                <div key={track.id} className="glass-panel p-5 rounded-2xl space-y-4 relative group">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-bold text-slate-200">{track.name}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {track.lanes_count} {t.dashboard.trackLanes} • {track.length_meters ? `${track.length_meters}m` : t.dashboard.trackLengthNa}
-                      </p>
-                    </div>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/5">
-                      {t.dashboard.trackType}
-                    </span>
-                  </div>
-
-                  {track.best_lap_time ? (
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full border border-white/5 overflow-hidden bg-rose-500/10 flex items-center justify-center text-rose-400 text-xs font-bold font-mono-telemetry flex-shrink-0">
-                          {track.best_lap_driver?.avatar_url ? (
-                            <img src={track.best_lap_driver.avatar_url} alt={track.best_lap_driver.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span>{track.best_lap_driver?.nickname?.substring(0,2).toUpperCase() || "DR"}</span>
-                          )}
-                        </div>
+              tracks
+                .filter(trackItem => trackItem.best_lap_time)
+                .slice(0, 3)
+                .map((track) => {
+                  const cardContent = (
+                    <>
+                      <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-xs text-slate-400">{t.dashboard.recordist}</p>
-                          <p className="text-sm font-semibold text-slate-200">{track.best_lap_driver?.name}</p>
+                          <h3 className="font-bold text-slate-200">{track.name}</h3>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {track.lanes_count} {t.dashboard.trackLanes} • {track.length_meters ? `${track.length_meters}m` : t.dashboard.trackLengthNa}
+                          </p>
+                        </div>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400 px-2 py-0.5 rounded border border-cyan-500/20 bg-cyan-500/5">
+                          {t.dashboard.trackType}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/50 border border-white/5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full border border-white/5 overflow-hidden bg-rose-500/10 flex items-center justify-center text-rose-400 text-xs font-bold font-mono-telemetry flex-shrink-0">
+                            {track.best_lap_driver?.avatar_url ? (
+                              <img src={track.best_lap_driver.avatar_url} alt={track.best_lap_driver.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span>{track.best_lap_driver?.nickname?.substring(0,2).toUpperCase() || "DR"}</span>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">{t.dashboard.recordist}</p>
+                            <p className="text-sm font-semibold text-slate-200">{track.best_lap_driver?.name}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{t.track.record}</p>
+                          <p className="text-base font-extrabold text-rose-400 font-mono-telemetry">
+                            {parseFloat(track.best_lap_time).toFixed(3)}s
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{t.track.record}</p>
-                        <p className="text-base font-extrabold text-rose-400 font-mono-telemetry">
-                          {parseFloat(track.best_lap_time).toFixed(3)}s
-                        </p>
-                      </div>
+                    </>
+                  );
+
+                  if (track.best_lap_race_id) {
+                    return (
+                      <Link 
+                        href={`/races/${track.best_lap_race_id}`}
+                        key={track.id} 
+                        className="glass-panel p-5 rounded-2xl space-y-4 relative group hover:bg-white/3 hover:border-white/10 transition-all duration-150 cursor-pointer block"
+                        title="View GP Details"
+                      >
+                        {cardContent}
+                      </Link>
+                    );
+                  }
+
+                  return (
+                    <div key={track.id} className="glass-panel p-5 rounded-2xl space-y-4 relative group">
+                      {cardContent}
                     </div>
-                  ) : (
-                    <div className="text-center p-3 rounded-xl bg-slate-900/35 border border-white/5 text-xs text-slate-500">
-                      {t.dashboard.noRecords}
-                    </div>
-                  )}
-                </div>
-              ))
+                  );
+                })
             )}
           </div>
         </div>
@@ -240,7 +265,7 @@ export default function Dashboard() {
                   </thead>
                   <tbody className="divide-y divide-white/5 text-sm">
                     {races.map((race) => (
-                      <tr key={race.id} className="hover:bg-white/1 transition-all group">
+                      <tr key={race.id} className="hover:bg-white/3 transition-all group">
                         <td className="p-4 sm:p-5">
                           <span className="font-bold text-slate-200 block">{race.name}</span>
                           <span className="text-xs text-slate-400 mt-0.5">

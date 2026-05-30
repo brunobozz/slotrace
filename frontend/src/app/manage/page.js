@@ -34,6 +34,17 @@ export default function ManageSystem() {
     return () => window.removeEventListener("slotrace_token_updated", checkAuth);
   }, [user]);
 
+  // Sync activeTab with URL search parameter '?tab=...'
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam && ["drivers", "cars", "tracks", "races"].includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
+    }
+  }, []);
+
   const fetchAllData = async () => {
     const token = sessionStorage.getItem("slotrace_drive_token");
     const isSim = user?.auth_type?.includes("simulated");
